@@ -1,4 +1,4 @@
-package controlletdatasource
+package controllerdatasource
 
 import (
 	"context"
@@ -16,7 +16,7 @@ import (
 // @TODO : This  data source needs update schema properly.
 // Will revisit
 type ControllerDataSource struct {
-	client *client.Client
+	client client.HttpHandler
 }
 
 type ControllerModel struct {
@@ -83,7 +83,7 @@ func (d *ControllerDataSource) Configure(_ context.Context, req datasource.Confi
 		return
 	}
 
-	client, ok := req.ProviderData.(*client.Client)
+	client, ok := req.ProviderData.(client.HttpHandler)
 	if !ok {
 		resp.Diagnostics.AddError(
 			"Unexpected Data Source Configure Type",
@@ -99,9 +99,9 @@ func (d *ControllerDataSource) Configure(_ context.Context, req datasource.Confi
 func (d *ControllerDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
 	//state := &ControllerListModel{}
 	output := &ControllerListJsonModel{}
-	httpResponse, err := d.client.Get(ctx, "/get-controller-data", "", output)
+	httpResponseCode, err := d.client.Get(ctx, "/get-controller-data", "", output)
 	if err != nil {
-		errMsg := fmt.Sprintf("got an errorin controller datasource. Error : %v , response code : %v", err.Error(), httpResponse)
+		errMsg := fmt.Sprintf("got an errorin controller datasource. Error : %v , response code : %v", err.Error(), httpResponseCode)
 		tflog.Error(ctx, errMsg)
 
 		resp.Diagnostics.AddAttributeError(
@@ -111,7 +111,6 @@ func (d *ControllerDataSource) Read(ctx context.Context, req datasource.ReadRequ
 		)
 		return
 	}
-	
 
 	state := &ControllerListModel{
 		ControllerListModel: []*ControllerModel{},
@@ -128,8 +127,11 @@ func (d *ControllerDataSource) Read(ctx context.Context, req datasource.ReadRequ
 	}
 
 	// Set state
-	diags := resp.State.Set(ctx, state)
-	resp.Diagnostics.Append(diags...)
+	if len(state.ControllerListModel) > 0 {
+		diags := resp.State.Set(ctx, state)
+		resp.Diagnostics.Append(diags...)
+	}
+
 	if resp.Diagnostics.HasError() {
 		return
 	}

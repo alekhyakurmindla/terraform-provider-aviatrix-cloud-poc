@@ -83,11 +83,16 @@ func (r *AviatrixAccountResource) Create(ctx context.Context, req resource.Creat
 
 // Read refreshes the Terraform state with the latest data.
 func (r *AviatrixAccountResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	resource := &AviatrixAccountResourceModel{}
+	diags := req.State.Get(ctx, &resource)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
 }
 
 func (r *AviatrixAccountResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
 }
 
 func (r *AviatrixAccountResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
-
 }
