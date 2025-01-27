@@ -27,7 +27,8 @@ func TestMetadata(t *testing.T) {
 }
 
 func TestSchema(t *testing.T) {
-	p := &aviatrixProvider{}
+	v1 := "1.0"
+	p := New(v1)()
 	ctx := context.Background()
 	req := provider.SchemaRequest{}
 	resp := &provider.SchemaResponse{}
@@ -46,6 +47,15 @@ func TestSchema(t *testing.T) {
         assert.True(t, exists, "Key 'password' should exist in the map")	
         assert.Equal(t, true, attr.IsOptional(), "Value for password 'resp.Schema.Attributes.IsOptional' should be true") 
         assert.Equal(t, true, attr.IsSensitive(), "Value for password 'resp.Schema.Attributes.IsSensitive' should be true")    
+}
+
+func TestConfigure(t *testing.T){
+	avxPro := &aviatrixProvider{}
+	ctx := context.Background()
+	req := provider.ConfigureRequest{}
+	resp := provider.ConfigureResponse{}
+	avxPro.Configure(ctx, req, &resp)
+	assert.False(t, resp.Diagnostics.HasError())
 }
 
 func TestDataSources(t *testing.T){

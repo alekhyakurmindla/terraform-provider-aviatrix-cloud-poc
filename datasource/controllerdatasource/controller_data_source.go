@@ -7,10 +7,10 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
-	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/terraform-provider-aviatrix-cloud-poc/client"
+	pb "github.com/terraform-provider-aviatrix-cloud-poc/gen-protogo/aviatrix"
 )
 
 // @TODO : This  data source needs update schema properly.
@@ -97,26 +97,28 @@ func (d *ControllerDataSource) Configure(_ context.Context, req datasource.Confi
 }
 
 func (d *ControllerDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
-	//state := &ControllerListModel{}
-	output := &ControllerListJsonModel{}
-	httpResponseCode, err := d.client.Get(ctx, "/get-controller-data", "", output)
+	// Connect to the gRPC server
+	conn, err := client.NewGRPCClient(ctx)
 	if err != nil {
-		errMsg := fmt.Sprintf("got an errorin controller datasource. Error : %v , response code : %v", err.Error(), httpResponseCode)
-		tflog.Error(ctx, errMsg)
-
-		resp.Diagnostics.AddAttributeError(
-			path.Root("controller"),
-			errMsg,
-			"The provider cannot get the controller data",
-		)
-		return
+		tflog.Error(ctx, fmt.Sprintf("ControllerDataSource : Failed to connect gRPC: %v", err))
 	}
+	defer conn.ClientConn.Close()
+
+	client := pb.NewAviatrixControllerserviceClient(conn.ClientConn)
+
+	apiResp, err := client.GetAviatrixControllers(ctx, &pb.GetAviatrixControllersRequest{})
+	if err != nil {
+		//log.Fatalf("Error calling GetAviatrixControllers: %v", err)
+		tflog.Error(ctx, fmt.Sprintf("Error calling GetAviatrixControllers: %v", err))
+	}
+
+	//tflog.Error(ctx, fmt.Sprintf("=============> gRPCCCCCCCCCCCCCCC :  AviatrixControllers: %s", apiResp.AviatrixControllers))
 
 	state := &ControllerListModel{
 		ControllerListModel: []*ControllerModel{},
 	}
 
-	for _, d := range output.ControllerListJsonModel {
+	for _, d := range apiResp.AviatrixControllers {
 		obj := &ControllerModel{
 			Region:     types.StringValue(d.Region),
 			CloudType:  types.StringValue(d.CloudType),

@@ -1,0 +1,27 @@
+syntax = "proto3";
+
+package aviatrix;
+
+option go_package = "github.com/terraform-provider-aviatrix-cloud-poc/gen-protogo/aviatrix;aviatrix";
+
+// Define the service
+service AviatrixControllerservice {
+  // Define an RPC method to fetch aviatrixcontroller data
+  rpc GetAviatrixControllers (GetAviatrixControllersRequest) returns (GetAviatrixControllersResponse);
+}
+
+// Define the request message (empty for this example, as no input is specified)
+message GetAviatrixControllersRequest {}
+
+// Define the response message
+message GetAviatrixControllersResponse {
+  repeated AviatirxController AviatrixControllers = 1; // A list of AviatrixControllers
+}
+
+// Define the aviatrixcontroller message
+message AviatirxController {
+  string region = 1;        // Region of the aviatrixcontroller
+  string vpc_id = 2;        // VPC ID
+  string instance_id = 3;   // Instance ID
+  string cloud_type = 4;    // Cloud type
+}

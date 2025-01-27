@@ -32,7 +32,19 @@ func TestSchema(t *testing.T) {
 	controllerAttr := resp.Schema.Attributes["controller"]
 	assert.NotNil(t, controllerAttr)
 	assert.Equal(t, true, controllerAttr.IsComputed(), "Value for region 'resp.Schema.Attributes.Computed' should be true")
+	assert.Equal(t, true, controllerAttr.IsComputed(), "Value for vpc_id 'resp.Schema.Attributes.Computed' should be true")
+	assert.Equal(t, true, controllerAttr.IsComputed(), "Value for instance_id 'resp.Schema.Attributes.Computed' should be true")
+	assert.Equal(t, true, controllerAttr.IsComputed(), "Value for cloud_type 'resp.Schema.Attributes.Computed' should be true")
+}
 
+func TestConfigure(t *testing.T){
+	cnt := &ControllerDataSource{}
+	ctx := context.Background()
+	req := datasource.ConfigureRequest{}
+	resp := datasource.ConfigureResponse{}
+	cnt.Configure(ctx, req, &resp)
+
+	assert.False(t, resp.Diagnostics.HasError())
 }
 
 func TestRead(t *testing.T) {

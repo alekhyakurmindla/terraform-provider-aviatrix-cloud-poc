@@ -92,14 +92,7 @@ func (d *AvxDatasource) Configure(_ context.Context, req datasource.ConfigureReq
 
 func (d *AvxDatasource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
 	tflog.Debug(ctx, "===> avx data source read")
-	//d.client.Get(ctx, "/", "test-data")
-
-	// if d.client == nil {
-	// 		panic("=============> PANIC the client is nil")
-	// }else {
-	// 	panic("=============> ELSE PANIC the client is not nil")
-	// }
-	//i := interface{}
+	
 	state := &AvxDataSourceModel{
 		AvxData: []*AvxModel{
 			{

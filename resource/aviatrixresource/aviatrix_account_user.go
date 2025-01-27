@@ -3,10 +3,10 @@ package aviatrixresource
 import (
 	"context"
 	"fmt"
-
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/types"
+
 	"github.com/terraform-provider-aviatrix-cloud-poc/client"
 )
 
@@ -15,7 +15,11 @@ type AviatrixAccountResourceModel struct {
 	Username types.String `tfsdk:"username"`
 	Password types.String `tfsdk:"password"`
 }
-
+type AviatrixAccountResourceJsonModel struct {
+	Email      string `json:"email"`
+	Username   string `json:"username"`
+	InstanceId string `json:"password"`
+}
 type AviatrixAccountResource struct {
 	client *client.Client
 }
@@ -41,7 +45,7 @@ func (r *AviatrixAccountResource) Schema(_ context.Context, _ resource.SchemaReq
 				Required: true,
 			},
 			"password": schema.StringAttribute{
-				Computed:  false,
+				Computed: false,
 				Required: true,
 			},
 		},
@@ -81,7 +85,6 @@ func (r *AviatrixAccountResource) Create(ctx context.Context, req resource.Creat
 	}
 }
 
-// Read refreshes the Terraform state with the latest data.
 func (r *AviatrixAccountResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
 	resource := &AviatrixAccountResourceModel{}
 	diags := req.State.Get(ctx, &resource)
